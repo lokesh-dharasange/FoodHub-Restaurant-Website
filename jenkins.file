@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        SSH_CRED = 'foodhub-web'
+        TARGET_HOST_IP = '172.31.23.69'
+        USER = 'ubuntu'
+        REPO_URL = 'https://github.com/lokesh-dharasange/FoodHub-Restaurant-Website.git'
+        BRANCH = 'main'
+        DEPLOY_DIR = '/home/ubuntu/FoodHub-Restaurant-Website'
+    }
+
+    stages {
+
+        stage('Git Clone') {
+            steps {
+                git branch: "${BRANCH}", url: "${REPO_URL}"
+            }
+        }
+
+        stage('Deploy to Target Host') {
+            steps {
+                sshagent(credentials: [foodhub-web'']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP} 'mkdir -p ${DEPLOY_DIR}'
+                        scp -o StrictHostKeyChecking=no -r * ${USER}@${TARGET_HOST_IP}:${DEPLOY_DIR}
+                    """
+                }
+            }
+        }
+
+        stage('Install & Configure Nginx') {
+            steps {
+                sshagent(credentials: ['foodhub-web']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP} '
+                        sudo apt update &&
+                        sudo apt install nginx -y &&
+                        sudo systemctl enable nginx &&
+                        sudo systemctl restart nginx &&
+                        sudo rm -rf /var/www/html/* &&
+                        sudo cp -r /home/ubuntu/FoodHub-Restaurant-Website /var/www/html/ &&
+                        sudo curl http://localhost:80/FoodHub-Restaurant-Website
+                        '
+                    """
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh """
+                    curl http://localhost:80/FoodHub-Restaurant-Website}
+                """
+            }
+        }
+    }
+}
