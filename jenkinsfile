@@ -20,7 +20,7 @@ pipeline {
 
         stage('Deploy to Target Host') {
             steps {
-                sshagent(credentials: [foodhub-web'']) {
+                sshagent(credentials: ['foodhub-web']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP} 'mkdir -p ${DEPLOY_DIR}'
                         scp -o StrictHostKeyChecking=no -r * ${USER}@${TARGET_HOST_IP}:${DEPLOY_DIR}
@@ -39,8 +39,8 @@ pipeline {
                         sudo systemctl enable nginx &&
                         sudo systemctl restart nginx &&
                         sudo rm -rf /var/www/html/* &&
-                        sudo cp -r /home/ubuntu/FoodHub-Restaurant-Website /var/www/html/ &&
-                        sudo curl http://localhost:80/FoodHub-Restaurant-Website
+                        sudo cp -r /home/ubuntu/FoodHub-Restaurant-Website/* /var/www/html/ &&
+                        curl http://localhost
                         '
                     """
                 }
@@ -49,9 +49,11 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                sh """
-                    curl http://localhost:80/FoodHub-Restaurant-Website}
-                """
+                sshagent(credentials: ['foodhub-web']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP} 'curl http://localhost'
+                    """
+                }
             }
         }
     }
