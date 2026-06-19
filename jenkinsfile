@@ -38,7 +38,7 @@ pipeline {
                         sudo apt install nginx -y &&
                         sudo systemctl enable nginx &&
                         sudo systemctl restart nginx &&
-                        sudo rm -rf /var/www/html/* &&
+                        sudo rm -rf /var/www/html/ &&
                         sudo ls -R /var/www/html/ &&
                         sudo cp -r /home/ubuntu/FoodHub-Restaurant-Website/* /var/www/html/ &&
                         curl http://localhost
