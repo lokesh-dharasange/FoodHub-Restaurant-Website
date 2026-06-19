@@ -53,9 +53,8 @@ pipeline {
                 sshagent(credentials: ['foodhub-web']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP}' 
-                        curl http://localhost  &&
-                        sudo ls -R /var/www/html &&
-                        sudo ls /var/www/html
+                        sudo ls /var/www/html/ &&
+                        sudo ls -R /var/www/html/ &&
                         '
                     """
                 }
