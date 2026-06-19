@@ -54,7 +54,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${USER}@${TARGET_HOST_IP} ' 
                         sudo ls /var/www/html/ &&
-                        sudo ls -R /var/www/html/ &&
+                        sudo ls -R /var/www/html/ 
                         '
                     """
                 }
